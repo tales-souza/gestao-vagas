@@ -29,7 +29,7 @@ public class UpdateCandidateController {
     @PutMapping(value = "/" )
     @PreAuthorize("hasRole('CANDIDATE')")
     public ResponseEntity<Object> execute(@Valid @RequestPart("metadata") UpdateCandidateRequestDto candidate,
-                                          @RequestPart("file") MultipartFile file,
+                                          @RequestPart(value = "file", required = false) MultipartFile file,
                                           HttpServletRequest request
                                           ) {
         try{

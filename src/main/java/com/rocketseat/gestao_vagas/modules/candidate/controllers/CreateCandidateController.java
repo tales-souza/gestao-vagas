@@ -21,7 +21,8 @@ public class CreateCandidateController {
     private S3StotageProvider s3StotageProvider;
 
     @PostMapping(value = "/" )
-    public ResponseEntity<Object> execute(@Valid @RequestPart("metadata") CreateCandidadeRequestDto candidate, @RequestPart("file") MultipartFile file) {
+    public ResponseEntity<Object> execute(@Valid @RequestPart("metadata") CreateCandidadeRequestDto candidate,
+                                          @RequestPart(value = "file", required = false) MultipartFile file) {
         try{
 
             String fileUrl = null;
