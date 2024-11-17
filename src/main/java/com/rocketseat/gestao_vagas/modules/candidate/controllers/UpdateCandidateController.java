@@ -38,9 +38,12 @@ public class UpdateCandidateController {
 
             String fileUrl = null;
 
-            if(!file.isEmpty()){
-                fileUrl = this.s3StotageProvider.uploadFile(file);
+            if(file != null){
+                if(!file.isEmpty()){
+                    fileUrl = this.s3StotageProvider.uploadFile(file);
+                }
             }
+
             var candidateEntity = CandidateEntity
                     .builder()
                     .name(candidate.getName())
