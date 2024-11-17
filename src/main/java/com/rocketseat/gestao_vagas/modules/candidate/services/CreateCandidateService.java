@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CandidateService {
+public class CreateCandidateService {
 
     @Autowired
     private CandidateRepository candidadeRepository;
@@ -17,7 +17,7 @@ public class CandidateService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public CandidateEntity create(CandidateEntity candidate) {
+    public CandidateEntity execute(CandidateEntity candidate) {
         this.candidadeRepository.findByUsernameOrEmail(candidate.getUsername(), candidate.getEmail())
                 .ifPresent((user) -> {
                     throw new UserFoundException();

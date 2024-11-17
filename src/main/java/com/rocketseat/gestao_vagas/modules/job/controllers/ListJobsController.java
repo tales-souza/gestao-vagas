@@ -2,6 +2,7 @@ package com.rocketseat.gestao_vagas.modules.job.controllers;
 
 import com.rocketseat.gestao_vagas.modules.job.dtos.ReturnResponseJobDto;
 import com.rocketseat.gestao_vagas.modules.job.services.ListJobsService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,22 +21,12 @@ public class ListJobsController {
 
     @GetMapping("/{idCompany}")
     @PreAuthorize("hasRole('CANDIDATE')")
-    public ResponseEntity<Object> execute(@PathVariable UUID idCompany){
+    public ResponseEntity<Object> execute(@PathVariable UUID idCompany, HttpServletRequest request){
         try{
 
-            var jobs = this.listJobsService.execute(idCompany);
-
-            var jobsDto = jobs.stream().
-                    map(job -> ReturnResponseJobDto.builder()
-                            .benefits(job.getBenefits())
-                            .level(job.getLevel())
-                            .id(job.getId())
-                            .description(job.getDescription())
-                            .build())
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok().body(jobsDto);
-
+            var candidateId = request.getAttribute("candidate_id").toString();
+            var jobs = this.listJobsService.execute(idCompany, UUID.fromString(candidateId));
+            return ResponseEntity.ok().body(jobs);
 
         }catch (Exception e) {
             return ResponseEntity.badRequest().body((e.getMessage()));

@@ -1,28 +1,40 @@
 package com.rocketseat.gestao_vagas.modules.candidate.controllers;
 
 import com.rocketseat.gestao_vagas.modules.candidate.dtos.CreateCandidadeRequestDto;
+import com.rocketseat.gestao_vagas.modules.candidate.dtos.UpdateCandidateRequestDto;
 import com.rocketseat.gestao_vagas.modules.candidate.entities.CandidateEntity;
 import com.rocketseat.gestao_vagas.modules.candidate.services.CreateCandidateService;
+import com.rocketseat.gestao_vagas.modules.candidate.services.UpdateCandidateService;
 import com.rocketseat.gestao_vagas.providers.S3StotageProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/candidate")
-public class CreateCandidateController {
+public class UpdateCandidateController {
 
     @Autowired
-    private CreateCandidateService candidadeService;
+    private UpdateCandidateService candidadeService;
 
     @Autowired
     private S3StotageProvider s3StotageProvider;
 
-    @PostMapping(value = "/" )
-    public ResponseEntity<Object> execute(@Valid @RequestPart("metadata") CreateCandidadeRequestDto candidate, @RequestPart("file") MultipartFile file) {
+    @PutMapping(value = "/" )
+    @PreAuthorize("hasRole('CANDIDATE')")
+    public ResponseEntity<Object> execute(@Valid @RequestPart("metadata") UpdateCandidateRequestDto candidate,
+                                          @RequestPart("file") MultipartFile file,
+                                          HttpServletRequest request
+                                          ) {
         try{
+
+            var candidateId = request.getAttribute("candidate_id").toString();
 
             String fileUrl = null;
 
@@ -31,15 +43,13 @@ public class CreateCandidateController {
             }
             var candidateEntity = CandidateEntity
                     .builder()
-                    .email(candidate.getEmail())
                     .name(candidate.getName())
                     .description(candidate.getDescription())
                     .password(candidate.getPassword())
-                    .username(candidate.getUsername())
                     .curriculum(fileUrl)
                     .build();
 
-            var result = this.candidadeService.execute(candidateEntity);
+            var result = this.candidadeService.execute(candidateEntity, UUID.fromString(candidateId));
 
             return ResponseEntity.ok().body(result) ;
         }catch (Exception e ) {
@@ -47,5 +57,3 @@ public class CreateCandidateController {
         }
     }
 }
-
-
