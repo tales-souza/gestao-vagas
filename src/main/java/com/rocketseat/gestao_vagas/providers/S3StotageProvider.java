@@ -86,7 +86,7 @@ public class S3StotageProvider {
 
     private void validateFile(MultipartFile file) {
         if(!PERMITTED_FILES.contains(file.getContentType())){
-            throw new IllegalArgumentException("Unsupported file type");
+            throw new IllegalArgumentException("Unsupported file type" +  file.getContentType() );
         }
     }
 
