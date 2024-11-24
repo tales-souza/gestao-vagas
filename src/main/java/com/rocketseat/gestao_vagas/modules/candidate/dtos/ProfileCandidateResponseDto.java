@@ -18,5 +18,6 @@ public class ProfileCandidateResponseDto {
     private String email;
     private UUID id;
     private String name;
+    private String curriculum;
 
 }

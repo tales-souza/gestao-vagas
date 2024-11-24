@@ -4,14 +4,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,6 +30,7 @@ public class S3StotageProvider {
 
     private String region;
 
+    private static final List<String> PERMITTED_FILES = List.of("application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
 
     public S3StotageProvider(
 
@@ -42,6 +49,9 @@ public class S3StotageProvider {
     }
 
     public String uploadFile(MultipartFile file) throws IOException {
+
+        this.validateFile(file);
+
         String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
 
         Path tempFilePath = Files.createTempFile(fileName, null);
@@ -60,6 +70,24 @@ public class S3StotageProvider {
 
 
         return "https://" + this.bucketName + ".s3." + this.region  + ".amazonaws.com/" + fileName;
+    }
+
+    public byte[] downloadFile(String fileKey) throws URISyntaxException {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(this.bucketName)
+                .key(fileKey)
+                .build();
+
+       var fileBytes = s3Client.getObjectAsBytes(getObjectRequest);
+
+       return fileBytes.asByteArray();
+
+    }
+
+    private void validateFile(MultipartFile file) {
+        if(!PERMITTED_FILES.contains(file.getContentType())){
+            throw new IllegalArgumentException("Unsupported file type");
+        }
     }
 
 }

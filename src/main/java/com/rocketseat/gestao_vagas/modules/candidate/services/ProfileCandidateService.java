@@ -29,6 +29,7 @@ public class ProfileCandidateService {
                 .name(candidate.getName())
                 .email(candidate.getEmail())
                 .id(candidate.getId())
+                .curriculum(candidate.getCurriculum())
                 .build();
 
         return candidateDto;
